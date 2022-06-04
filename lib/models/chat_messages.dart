@@ -6,6 +6,7 @@ class ChatMessages {
   String idTo;
   String timestamp;
   String content;
+  Map<String, dynamic>? metadata;
   int type;
 
   ChatMessages(
@@ -13,7 +14,9 @@ class ChatMessages {
       required this.idTo,
       required this.timestamp,
       required this.content,
-      required this.type});
+      required this.type,
+        this.metadata
+      });
 
   Map<String, dynamic> toJson() {
     return {
@@ -22,6 +25,7 @@ class ChatMessages {
       FirestoreConstants.timestamp: timestamp,
       FirestoreConstants.content: content,
       FirestoreConstants.type: type,
+      FirestoreConstants.metadata: metadata,
     };
   }
 
@@ -31,12 +35,15 @@ class ChatMessages {
     String timestamp = documentSnapshot.get(FirestoreConstants.timestamp);
     String content = documentSnapshot.get(FirestoreConstants.content);
     int type = documentSnapshot.get(FirestoreConstants.type);
+    Map<String, dynamic>? metadata = (documentSnapshot.data() as Map)[FirestoreConstants.metadata] as Map<String, dynamic>?;
 
     return ChatMessages(
         idFrom: idFrom,
         idTo: idTo,
         timestamp: timestamp,
         content: content,
-        type: type);
+        type: type,
+      metadata: metadata
+    );
   }
 }

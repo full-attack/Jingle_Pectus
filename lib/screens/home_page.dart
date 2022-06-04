@@ -202,7 +202,7 @@ class _HomePageState extends State<HomePage> {
                             );
                           } else {
                             return const Center(
-                              child: Text('No user found...'),
+                              child: Text('No user found...', style: TextStyle(color: Colors.white70),),
                             );
                           }
                         } else {

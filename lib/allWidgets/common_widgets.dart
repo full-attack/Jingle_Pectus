@@ -12,13 +12,13 @@ Widget errorContainer() {
   );
 }
 
-Widget chatImage({required String imageSrc, required Function onTap}) {
-  return OutlinedButton(
-    onPressed: onTap(),
+Widget chatImage({required String imageSrc, required VoidCallback onTap, Size? size}) {
+  return GestureDetector(
+    onTap: onTap,
     child: Image.network(
       imageSrc,
-      width: Sizes.dimen_200,
-      height: Sizes.dimen_200,
+      width: size?.width ?? Sizes.dimen_200,
+      height: size?.height ?? Sizes.dimen_200,
       fit: BoxFit.cover,
       loadingBuilder:
           (BuildContext ctx, Widget child, ImageChunkEvent? loadingProgress) {
