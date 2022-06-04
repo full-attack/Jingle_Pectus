@@ -19,8 +19,10 @@ class HomeProvider {
     if (textSearch?.isNotEmpty == true) {
       return firebaseFirestore
           .collection(collectionPath)
+          .orderBy(FirestoreConstants.displayName)
+          .where(FirestoreConstants.displayName, isGreaterThanOrEqualTo: textSearch)
+          .where(FirestoreConstants.displayName, isLessThanOrEqualTo: textSearch! + "\uf8ff")
           .limit(limit)
-          .where(FirestoreConstants.displayName, isEqualTo: textSearch)
           .snapshots();
     } else {
       return firebaseFirestore

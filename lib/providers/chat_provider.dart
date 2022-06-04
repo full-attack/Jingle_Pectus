@@ -40,8 +40,27 @@ class ChatProvider {
         .snapshots();
   }
 
+  void setReadChatMessage(String groupChatId, List<ChatMessages> chatMessages, {read = true}) {
+    DocumentReference documentReference = firebaseFirestore
+        .collection(FirestoreConstants.pathMessageCollection)
+        .doc(groupChatId)
+        .collection(groupChatId)
+        .doc(DateTime.now().millisecondsSinceEpoch.toString());
+    for (var e in chatMessages) {
+      if (e.metadata == null) {
+        e.metadata = {'read': read};
+      } else {
+        e.metadata!['read'] = read;
+      }
+    }
+    FirebaseFirestore.instance.runTransaction((transaction) async {
+      for (var m in chatMessages) {
+        transaction.set(documentReference, m.toJson());
+      }});
+  }
+
   void sendChatMessage(String content, int type, String groupChatId,
-      String currentUserId, String peerId) {
+      String currentUserId, String peerId, {Map<String, dynamic>? metadata}) {
     DocumentReference documentReference = firebaseFirestore
         .collection(FirestoreConstants.pathMessageCollection)
         .doc(groupChatId)
@@ -52,7 +71,9 @@ class ChatProvider {
         idTo: peerId,
         timestamp: DateTime.now().millisecondsSinceEpoch.toString(),
         content: content,
-        type: type);
+        type: type,
+      metadata: metadata
+    );
 
     FirebaseFirestore.instance.runTransaction((transaction) async {
       transaction.set(documentReference, chatMessages.toJson());
