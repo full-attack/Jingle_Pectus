@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
@@ -389,6 +391,22 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     ));
+  }
+
+  Future<String> uploadFile(PlatformFile file, String collection) async {
+    UploadTask uploadTask;
+
+    Reference ref = FirebaseStorage.instance
+        .ref()
+        .child(collection)
+        .child('/${file.hashCode}');
+
+    final metadata = SettableMetadata(
+        contentType: 'image/jpeg',
+        customMetadata: {'picked-file-path': file.path!});
+    uploadTask = ref.putFile(File(file.path!), metadata);
+
+    return (await uploadTask).ref.getDownloadURL();
   }
 
   Widget buildItem(BuildContext context, DocumentSnapshot? documentSnapshot) {
