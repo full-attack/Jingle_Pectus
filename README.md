@@ -1,6 +1,8 @@
 ## приложение Jingle 
 
 Код, используемый на Word Press
+
+```javascript
 <script>
 	 $("button").click(function(){
         var tg = [];
@@ -42,3 +44,4 @@ database.collection('stickers').add(dataObject);
  
  });
 </script>
+```
