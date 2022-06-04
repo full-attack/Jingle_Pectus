@@ -51,6 +51,7 @@ dependencies:
   google_sign_in_web: ^0.10.0+5
   path_provider: ^2.0.9
   just_audio: ^0.9.21
+  file_picker:
 
 dev_dependencies:
   flutter_test:

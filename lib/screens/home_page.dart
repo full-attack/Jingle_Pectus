@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:chatting/allConstants/all_constants.dart';
 import 'package:chatting/allWidgets/loading_view.dart';
@@ -15,6 +16,8 @@ import 'package:chatting/screens/login_page.dart';
 import 'package:chatting/screens/profile_page.dart';
 import 'package:chatting/utilities/debouncer.dart';
 import 'package:chatting/utilities/keyboard_utils.dart';
+
+import '../models/sticker.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -158,6 +161,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            onPressed: addSticker,
+            icon: const Icon(Icons.add),
+          ),
             centerTitle: true,
             title: const Text('Jingle Pectus'),
             actions: [
@@ -292,6 +299,96 @@ class _HomePageState extends State<HomePage> {
         color: AppColors.spaceLight,
       ),
     );
+  }
+
+
+  void addSticker() async {
+    XFile? imageResult;
+    PlatformFile? audioFile;
+    Sticker sticker = Sticker(img: '', name: '', tag: '');
+
+    showDialog(context: context, builder: (c) => Center(
+      child: Material(
+        child: StatefulBuilder(
+            builder: (context, ss) {
+              return Container(
+                padding: EdgeInsets.all(12.0),
+                width: MediaQuery.of(context).size.width * 4/5,
+                height: MediaQuery.of(context).size.height * 1/2,
+                child: Column(
+                  children: [
+                    Column(
+                      children: [
+                        TextField(
+                          decoration: InputDecoration(
+                              labelText: 'Имя'
+                          ),
+                          onChanged: (value) {
+                            sticker.name = value;
+                          },
+                        ),
+                        SizedBox(height: 8.0,),
+                        TextField(
+                          decoration: InputDecoration(
+                              labelText: 'Тег'
+                          ),
+                          onChanged: (value) {
+                            sticker.tag = value.replaceAll('#', '');
+                          },
+                        ),
+                        SizedBox(height: 8.0,),
+                        Row(
+                          children: [
+                            TextButton(onPressed: () async {
+                              imageResult = await ImagePicker().pickImage(
+                                imageQuality: 70,
+                                maxWidth: 1440,
+                                source: ImageSource.gallery,
+                              );
+                              ss((){});
+                            }, child: Text('Выберите стикер')),
+                            Expanded(child: GestureDetector(
+                                onTap: () => ss((){audioFile = null;}),
+                                child: Text(imageResult?.name ?? '')))
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            TextButton(onPressed: () async {
+                              FilePickerResult? result = await FilePicker.platform.pickFiles();
+                              if (result != null && result.files.isNotEmpty) {
+                                audioFile = result.files.first;
+                              }
+                              ss((){});
+                            }, child: Text('Выберите звук')),
+                            Expanded(child: GestureDetector(
+                                onTap: () => ss((){audioFile = null;}),
+                                child: Text(audioFile?.name ?? '')))
+                          ],
+                        ),
+                      ],
+                    ),
+                    Expanded(
+                      child:  TextButton(onPressed: () async {
+                        if (imageResult != null) {
+                          var imagePath = await uploadFile(PlatformFile(path: imageResult!.path, name: imageResult!.name, size: await imageResult!.length()), 'stickers');
+                          sticker.img = imagePath;
+                          if (audioFile != null) {
+                            var soundPath = await uploadFile(audioFile!, 'stickers');
+                            sticker.sound = soundPath;
+                          }
+                          await FirebaseFirestore.instance.collection('stickers').add(sticker.toJson());
+                          Navigator.pop(context);
+                        }
+                      }, child: Text('Добавить')),
+                    )
+                  ],
+                ),
+              );
+            }
+        ),
+      ),
+    ));
   }
 
   Widget buildItem(BuildContext context, DocumentSnapshot? documentSnapshot) {
