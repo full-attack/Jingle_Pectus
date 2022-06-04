@@ -3,7 +3,7 @@ import 'package:chatting/allConstants/all_constants.dart';
 
 Widget errorContainer() {
   return Container(
-    clipBehavior: Clip.hardEdge,
+    // clipBehavior: Clip.hardEdge,
     child: Image.asset(
       'assets/images/img_not_available.jpeg',
       height: Sizes.dimen_200,
